@@ -129,6 +129,7 @@ class TransreferenceResource extends Resource
                     ->schema([
                         Forms\Components\Select::make('boxtype_id')
                             ->options(Boxtype::all()->pluck('name', 'id'))
+                            ->label('Box Type')
                             ->required(),
                         Forms\Components\TextInput::make('quantity')
                             ->readOnly()
