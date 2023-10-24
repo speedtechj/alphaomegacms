@@ -23,12 +23,12 @@ return new class extends Migration
             $table->string('Home_number')->nullable();
             $table->string('Mobile_number');
             $table->string('Address');
-            $table->foreignId('provincecan_id')->constrained('provincecans');
-            $table->foreignId('citycan_id')->constrained('citycans');
+            $table->foreignId('provincecan_id')->reference('id')->on('provincecans')->constrained();
+            $table->foreignId('citycan_id')->reference('id')->on('citycans')->constrained();
             $table->string('postal_code');
             $table->text('notes')->nullable();
             $table->longText('docs')->nullable();
-            $table->foreignId('user_id')->constrained('users');
+            $table->foreignId('user_id')->reference('id')->on('users')->constrained();
             $table->timestamps();
         });
     }
