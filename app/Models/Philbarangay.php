@@ -13,4 +13,8 @@ class Philbarangay extends Model
     {
         return $this->belongsTo(Philcity::class);
     }
+    public function manifest()
+    {
+        return $this->belongsTo(Manifest::class);
+    }
 }

@@ -6,27 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Transaction extends Model
+class Manifest extends Model
 {
     use HasFactory;
-    protected $guarded = [];
-    protected $casts = [
-        'docs' => 'array',
-    ];
-    protected static function booted()
-{
-    static::creating(function ($refinv) {
-        // Custom invoice number generation logic, e.g., adding a prefix or suffix
-        $lastref = Transaction::orderBy('generated_invoice', 'desc')->first();
-        $refinv->generated_invoice = $lastref ? $lastref->generated_invoice + 1 : 1;
-        $refinv->generated_invoice =  str_pad($refinv->generated_invoice, 6, '0', STR_PAD_LEFT);
-    });
-}
-    
-    public function transreference()
-    {
-        return $this->belongsTo(Transreference::class);
-    }
+    protected $table = 'transactions';
     public function boxtype(): BelongsTo
     {
         return $this->belongsTo(Boxtype::class);
@@ -51,5 +34,16 @@ class Transaction extends Model
     {
         return $this->belongsTo(Batch::class);
     }
-    
+    public function philprovince(): BelongsTo
+    {
+        return $this->belongsTo(Philprovince::class);
+    }
+    public function philcity(): BelongsTo
+    {
+        return $this->belongsTo(Philcity::class);
+    }
+    public function philbarangay(): BelongsTo
+    {
+        return $this->belongsTo(Philbarangay::class);
+    }
 }

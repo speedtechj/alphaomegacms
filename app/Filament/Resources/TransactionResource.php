@@ -18,6 +18,7 @@ use Illuminate\Support\Collection;
 use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Repeater;
+use Illuminate\Database\Eloquent\Model;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\DatePicker;
 use Illuminate\Database\Eloquent\Builder;
@@ -54,8 +55,9 @@ class TransactionResource extends Resource
                 Forms\Components\Select::make('boxtype_id')
                 ->relationship('boxtype', 'name')
                 ->label('Box Type'),
-                Forms\Components\TextInput::make('price')
-                ->label('Price'),
+                Forms\Components\Select::make('batch_id')
+                ->relationship('batch', 'batch_number')
+                ->getOptionLabelFromRecordUsing(fn (Model $record) => "{$record->batch_number} {$record->batch_year}"),
                 Forms\Components\TextInput::make('manual_invoice')
                 ->mask('AO-9999999')
                 ->label('Manual Invoice'),
@@ -79,6 +81,11 @@ class TransactionResource extends Resource
                 Tables\Columns\TextColumn::make('manual_invoice')
                     ->label('Manual Invoice')
                     ->searchable(),
+                    Tables\Columns\TextColumn::make('batch')
+                    ->label('Batch Number')
+                    ->searchable()
+                    ->getStateUsing(fn (Transaction $transaction) => 
+                    $transaction->batch->batch_number.'-'.$transaction->batch->batch_year),
                 Tables\Columns\TextColumn::make('sender.full_name')
                     ->label('Sender Name')
                     ->sortable(),

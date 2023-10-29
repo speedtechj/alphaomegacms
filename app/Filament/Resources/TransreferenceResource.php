@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use Closure;
 use Filament\Forms;
 use Filament\Tables;
+use App\Models\Batch;
 use App\Models\Sender;
 use App\Models\Boxtype;
 use Filament\Forms\Get;
@@ -27,6 +28,7 @@ use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Repeater;
+use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Illuminate\Database\Eloquent\Builder;
@@ -217,7 +219,12 @@ class TransreferenceResource extends Resource
                             ->native(false)
                             ->default(now())
                             ->closeOnDateSelection(),
-                    ])->columns(3),
+                            Forms\Components\Select::make('batchid')
+                            ->label('Batch Number')
+                            ->options(Batch::all()->where('is_active', 1)->pluck('batch_number', 'id'))
+                            ->required()
+                            ->dehydrated(false),
+                    ])->columns(4),
 
 
                 Repeater::make('transaction')
@@ -243,6 +250,7 @@ class TransreferenceResource extends Resource
                         $data['servicetype_id'] = $get('senderid');
                         $data['manual_invoice'] = $get('manualinvoice');
                         $data['booked_date'] = $get('bookeddate');
+                        $data['batch_id'] = $get('batchid');
 
                         return $data;
                     })

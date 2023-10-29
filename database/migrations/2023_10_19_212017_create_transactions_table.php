@@ -21,6 +21,7 @@ return new class extends Migration
             $table->foreignId('servicetype_id')->constrained();
             $table->foreignId('user_id')->constrained();
             $table->foreignId('boxtype_id')->constrained();
+            $table->foreignId('batch_id')->constrained();
             $table->bigInteger('quantity');
             $table->date('booked_date');
             $table->timestamps();
