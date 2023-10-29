@@ -13,7 +13,10 @@ return new class extends Migration
     {
         Schema::create('batches', function (Blueprint $table) {
             $table->id();
+            $table->bigInteger('batch_number');
+            $table->year('batch_year');
             $table->timestamps();
+            $table->boolean('is_active')->default(true);
         });
     }
 
