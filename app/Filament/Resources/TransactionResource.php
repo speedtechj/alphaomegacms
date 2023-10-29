@@ -63,18 +63,6 @@ class TransactionResource extends Resource
                 ->label('Pickup/Dropoff Date')
                 ->native(false)
                 ->closeOnDateSelection(),
-                Forms\Components\FileUpload::make('docs')
-                            ->label('Document Attachements')
-                            ->multiple()
-                            ->downloadable()
-                            ->previewable()
-                            ->openable()
-                            ->disk('public')
-                            ->directory('transfile')
-                            ->visibility('private'),
-                            Forms\Components\MarkdownEditor::make('notes')
-                            ->label('Notes')
-                            ->columnSpanFull(),
                 
                 ])->columns(2)
                 
@@ -106,10 +94,6 @@ class TransactionResource extends Resource
                 Tables\Columns\TextColumn::make('quantity')
                     ->label('Quantity')
                     ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('price')
-                    ->label('Price')
-                    ->money()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('booked_date')
                     ->label('Pickup/Dropoff Date')
