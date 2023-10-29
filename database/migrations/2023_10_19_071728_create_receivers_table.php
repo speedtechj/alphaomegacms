@@ -17,16 +17,14 @@ return new class extends Migration
             $table->string('first_name');
             $table->string('last_name');
             $table->string('full_name')->virtualAs('concat(first_name, \' \', last_name)');
-            $table->string('email')->unique();
+            $table->string('email')->nullable();
             $table->string('Home_number')->nullable();
             $table->string('Mobile_number')->unique();
             $table->string('Address');
             $table->foreignId('philprovince_id')->constrained('philprovinces');
             $table->foreignId('philcity_id')->constrained('philcities');
             $table->foreignId('philbarangay_id')->constrained('philbarangays');
-            $table->string('zip_code');
-            $table->text('notes')->nullable();
-            $table->longText('docs')->nullable();
+            $table->string('zip_code')->nullable();
             $table->foreignId('user_id')->constrained('users');
             $table->timestamps();
         });

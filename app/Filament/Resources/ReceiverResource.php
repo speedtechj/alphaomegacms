@@ -111,19 +111,7 @@ class ReceiverResource extends Resource
                     ]),
 
                 
-                    Forms\Components\FileUpload::make('docs')
-                    ->label('Document Attachements')
-                    ->multiple()
-                    ->downloadable()
-                    ->previewable()
-                    ->openable()
-                    ->disk('public')
-                    ->directory('receiverfile')
-                    ->visibility('private')
-                    ->reorderable()
-                    ->columnSpanFull(),
-                Forms\Components\MarkdownEditor::make('notes')
-                    ->columnSpanFull(),
+                    
                 
             ]);
     }

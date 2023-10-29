@@ -9,12 +9,14 @@ use App\Models\Sender;
 use App\Models\Boxtype;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
+use App\Models\Philcity;
 use App\Models\Receiver;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use App\Models\Servicetype;
 use App\Models\Transaction;
 use Filament\Support\RawJs;
+use App\Models\Philbarangay;
 use App\Models\Transreference;
 use Filament\Resources\Resource;
 use Illuminate\Support\Collection;
@@ -22,10 +24,13 @@ use Filament\Forms\Components\Grid;
 use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\Actions\Action;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\TransreferenceResource\Pages;
 use App\Filament\Resources\TransreferenceResource\RelationManagers;
@@ -46,35 +51,45 @@ class TransreferenceResource extends Resource
                             ->schema([
                                 Forms\Components\Select::make('senderid')
                                     ->label('Sender Name')
+                                    ->relationship('sender', 'full_name')
                                     ->options(Sender::all()->pluck('full_name', 'id'))
                                     ->live()
                                     ->required()
                                     ->searchable()
                                     ->dehydrated(false)
                                     ->afterStateUpdated(function (Set $set, Get $get, $state) {
-                                        $senderinfo = Sender::where('id', $state)->first();
-                                        $set('Province', $senderinfo->provincecan->name);
-                                        $set('Address', $senderinfo->Address);
-                                        $set('City', $senderinfo->citycan->name);
-                                        $set('Mobile_number', $senderinfo->Mobile_number);
-                                        $set('Email', $senderinfo->email);
+
                                         $set('receiverid', null);
-                                    }),
-                                Forms\Components\TextInput::make('Address')->label('Address')
-                                    ->dehydrated(false),
-                                Forms\Components\TextInput::make('Province')->label('Province')
-                                    ->dehydrated(false),
-                                Forms\Components\TextInput::make('City')->label('City')
-                                    ->dehydrated(false),
-                                Forms\Components\Select::make('Mobile_number')->label('Mobile Number')
-                                    ->dehydrated(false),
-                                Forms\Components\TextInput::make('Email')->label('Email')
-                                    ->dehydrated(false),
+                                        $set('province', null);
+                                        $set('address', null);
+                                        $set('city', null);
+                                        $set('mobile_number', null);
+                                        $set('email', null);
+                                        $set('barangay', null);
+                                    })
+                                    ->createOptionForm([
+                                        Forms\Components\TextInput::make('first_name')
+                                            ->label('First_name')
+                                            ->required(),
+                                        Forms\Components\TextInput::make('last_name')
+                                            ->label('Last_name')
+                                            ->required(),
+                                        Hidden::make('user_id')->default(auth()->id()),
+
+                                    ])
+                                    ->manageOptionActions(function (Action $action) {
+                                        return $action
+
+                                            ->modalWidth('lg');
+                                    })
+
+
                             ])->columns(3),
                         Section::make('Receiver Information')
                             ->schema([
                                 Forms\Components\Select::make('receiverid')
                                     ->label('Receiver Name')
+                                    ->relationship('receiver', 'full_name')
                                     ->options(fn (Get $get): Collection => Receiver::query()
                                         ->where('sender_id', $get('senderid'))
                                         ->pluck('full_name', 'id'))
@@ -89,7 +104,88 @@ class TransreferenceResource extends Resource
                                         $set('mobile_number', $receiverinfo->Mobile_number);
                                         $set('email', $receiverinfo->email);
                                         $set('barangay', $receiverinfo->philbarangay->name);
-                                    }),
+                                    })
+                                    ->createOptionForm([
+                                        Hidden::make('user_id')->default(auth()->id()),
+                                        Group::make()
+                                            ->schema([
+                                                Section::make('Receiver Information')
+                                                    ->schema([
+                                                        Forms\Components\Select::make('sender_id')
+                                                            ->label('Sender')
+                                                            ->placeholder('Select Sender')
+                                                            ->searchable()
+                                                            ->preload()
+                                                            ->relationship('sender', 'full_name')
+                                                            ->required(),
+                                                        Forms\Components\TextInput::make('first_name')
+                                                            ->required()
+                                                            ->maxLength(255),
+                                                        Forms\Components\TextInput::make('last_name')
+                                                            ->required()
+                                                            ->maxLength(255),
+                                                        Forms\Components\TextInput::make('email')
+                                                            ->unique(ignoreRecord: true)
+                                                            ->email()
+                                                            ->maxLength(255),
+                                                        Forms\Components\TextInput::make('Home_number')
+                                                            ->mask('+63(999) 999-9999')
+                                                            ->maxLength(255),
+                                                        Forms\Components\TextInput::make('Mobile_number')
+                                                            ->unique(ignoreRecord: true)
+                                                            ->mask('+63(999) 999-9999')
+                                                            ->required()
+                                                            ->maxLength(255),
+                                                    ])->columns(3),
+                                            ]),
+                                        Group::make()
+                                            ->schema([
+                                                Section::make('Address Information')
+                                                    ->schema([
+                                                        Forms\Components\TextInput::make('Address')
+                                                            ->required()
+                                                            ->maxLength(255),
+                                                        Forms\Components\Select::make('philprovince_id')
+                                                            ->label('Province')
+                                                            ->relationship('philprovince', 'name')
+                                                            ->placeholder('Select Province')
+                                                            ->searchable()
+                                                            ->preload()
+                                                            ->live()
+                                                            ->required()
+                                                            ->afterStateUpdated(function (Get $get, Set $set, ?string $state) {
+                                                                $set('philcity_id', null);
+                                                                $set('philbarangay_id', null);
+                                                            }),
+                                                        Forms\Components\Select::make('philcity_id')
+                                                            ->label('City')
+                                                            ->placeholder('Select City')
+                                                            ->searchable()
+                                                            ->live()
+                                                            ->preload()
+                                                            ->required()
+                                                            ->options(fn (Get $get): Collection => Philcity::query()
+                                                                ->where('philprovince_id', $get('philprovince_id'))
+                                                                ->pluck('name', 'id'))
+                                                            ->afterStateUpdated(function (Get $get, Set $set, ?string $state) {
+                                                                $set('philbarangay_id', null);
+                                                            }),
+                                                        Forms\Components\Select::make('philbarangay_id')
+                                                            ->label('Barangay')
+                                                            ->placeholder('Select Barangay')
+                                                            ->searchable()
+                                                            ->preload()
+                                                            ->required()
+                                                            ->options(fn (Get $get): Collection => Philbarangay::query()
+                                                                ->where('philcity_id', $get('philcity_id'))
+                                                                ->pluck('name', 'id')),
+                                                        Forms\Components\TextInput::make('zip_code')
+                                                            
+                                                            ->maxLength(255),
+                                                    ])->columns(3),
+                                            ]),
+
+                                    ]),
                                 Forms\Components\TextInput::make('address')->label('Address')
                                     ->dehydrated(false),
                                 Forms\Components\TextInput::make('province')->label('Province')
@@ -128,9 +224,11 @@ class TransreferenceResource extends Resource
                     ->relationship()
                     ->schema([
                         Forms\Components\Select::make('boxtype_id')
-                            ->options(Boxtype::all()->pluck('name', 'id'))
+                            ->relationship('boxtype', 'name')
                             ->label('Box Type')
                             ->required(),
+
+
                         Forms\Components\TextInput::make('quantity')
                             ->readOnly()
                             ->required()
@@ -161,9 +259,7 @@ class TransreferenceResource extends Resource
     {
         return $table
             ->columns([])
-            ->filters([
-                
-            ])
+            ->filters([])
 
             ->actions([
                 Tables\Actions\EditAction::make(),

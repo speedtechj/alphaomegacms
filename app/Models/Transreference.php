@@ -28,4 +28,8 @@ class Transreference extends Model
     {
         return $this->belongsTo(Sender::class);
     }
+    public function receiver(): BelongsTo
+    {
+        return $this->belongsTo(Receiver::class);
+    }
 }

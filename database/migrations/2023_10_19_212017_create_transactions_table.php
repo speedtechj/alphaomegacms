@@ -22,11 +22,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained();
             $table->foreignId('boxtype_id')->constrained();
             $table->bigInteger('quantity');
-            $table->decimal('price', 8, 2);
-            $table->longText('notes')->nullable();
-            $table->longText('docs')->nullable();
             $table->date('booked_date');
-
             $table->timestamps();
         });
     }
