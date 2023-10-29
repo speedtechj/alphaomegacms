@@ -17,17 +17,6 @@ return new class extends Migration
             $table->string('first_name');
             $table->string('last_name');
             $table->string('full_name')->virtualAs('concat(first_name, \' \', last_name)');
-            $table->string('email')->unique();
-            $table->boolean('is_active')->default(true);
-            $table->string('password')->default('password');
-            $table->string('Home_number')->nullable();
-            $table->string('Mobile_number');
-            $table->string('Address');
-            $table->foreignId('provincecan_id')->reference('id')->on('provincecans')->constrained();
-            $table->foreignId('citycan_id')->reference('id')->on('citycans')->constrained();
-            $table->string('postal_code');
-            $table->text('notes')->nullable();
-            $table->longText('docs')->nullable();
             $table->foreignId('user_id')->reference('id')->on('users')->constrained();
             $table->timestamps();
         });
