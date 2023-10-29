@@ -7,9 +7,12 @@ use Filament\Tables;
 use App\Models\Manifest;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use App\Exports\ManifestExport;
 use Filament\Resources\Resource;
 use Illuminate\Database\Eloquent\Model;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use App\Filament\Resources\ManifestResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ManifestResource\RelationManagers;
@@ -17,7 +20,7 @@ use App\Filament\Resources\ManifestResource\RelationManagers;
 class ManifestResource extends Resource
 {
     protected static ?string $model = Manifest::class;
-
+    protected static ?string $navigationGroup = 'Customers';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
@@ -67,22 +70,25 @@ class ManifestResource extends Resource
                     Tables\Columns\TextColumn::make('receiver.philprovince.name')
                     ->label('Province')
                     ->sortable(),
-                    Tables\Columns\TextColumn::make('receiver.mobile_number')
+                    Tables\Columns\TextColumn::make('receiver.Mobile_number')
                     ->label('Mobile Number')
                     ->sortable(),
                     
                     
             ])->recordUrl(null) 
             ->filters([
-                //
+               SelectFilter::make('batch_id')
+               ->label('Batch Number')
+                ->relationship('batch', 'batch_number')
             ])
             ->actions([
                 // Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
+                
+                    Tables\Actions\BulkAction::make('xls')->label('Export to Excel')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->action(fn (Collection $records) => (new ManifestExport($records))->download('manifest.xlsx')),
             ]);
     }
 
