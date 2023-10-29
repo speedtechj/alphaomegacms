@@ -227,19 +227,13 @@ class TransreferenceResource extends Resource
                             ->relationship('boxtype', 'name')
                             ->label('Box Type')
                             ->required(),
-
-
                         Forms\Components\TextInput::make('quantity')
                             ->readOnly()
                             ->required()
                             ->numeric()
                             ->default(1),
-                        Forms\Components\TextInput::make('price')
-                            ->required()
-                            ->numeric()
-                            ->prefix('$')
-                            ->inputMode('decimal'),
-                    ])->columns(3)->columnSpanFull()
+                        
+                    ])->columns(2)->columnSpanFull()
                     ->cloneable()
                     ->addActionLabel('Add Item')
                     ->mutateRelationshipDataBeforeCreateUsing(function (Get $get, array $data): array {
